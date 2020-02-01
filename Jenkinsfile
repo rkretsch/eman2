@@ -239,6 +239,14 @@ def isSkipStage() {
 //     return !stages.contains(STAGE_NAME)
 }
 
+def run_conda_command() {
+    notifyGitHub('PENDING')
+
+    sh "conda create          -n eman-deps-${STAGE_NAME} eman-deps-dev=${STAGE_NAME} -c cryoem -c defaults -c conda-forge --yes"
+    sh "conda list            -n eman-deps-${STAGE_NAME}"
+    sh "conda list --explicit -n eman-deps-${STAGE_NAME}"
+}
+
 pipeline {
   agent {
     node { label "${AGENT_NAME}" }
@@ -275,6 +283,12 @@ pipeline {
         selectNotifications()
         notifyGitHub('PENDING')
         sh 'env | sort'
+      }
+    }
+    
+    stage('18.0') {
+      steps {
+        run_conda_command()
       }
     }
   }
