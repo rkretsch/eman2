@@ -241,10 +241,13 @@ def isSkipStage() {
 
 def run_conda_command() {
     notifyGitHub('PENDING')
+    
+    env_name = "eman-deps-${STAGE_NAME}"
 
-    sh "conda create          -n eman-deps-${STAGE_NAME} eman-deps-dev=${STAGE_NAME} -c cryoem -c defaults -c conda-forge --yes"
-    sh "conda list            -n eman-deps-${STAGE_NAME}"
-    sh "conda list --explicit -n eman-deps-${STAGE_NAME}"
+    sh "conda env remove      -n " + env_name
+    sh "conda create          -n " + env_name + " eman-deps-dev=${STAGE_NAME}=2 -c cryoem -c defaults -c conda-forge --yes"
+    sh "conda list            -n " + env_name
+    sh "conda list --explicit -n " + env_name
 }
 
 pipeline {
@@ -286,7 +289,7 @@ pipeline {
       }
     }
     
-    stage('18.0') {
+    stage('19.0') {
       steps {
         run_conda_command()
       }
