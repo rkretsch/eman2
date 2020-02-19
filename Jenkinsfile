@@ -245,7 +245,7 @@ def run_conda_command() {
     env_name = "eman-deps-${STAGE_NAME}"
 
     sh "conda env remove      -n " + env_name
-    sh "conda create          -n " + env_name + " eman-deps-dev=${STAGE_NAME}=2 -c cryoem -c defaults -c conda-forge --yes"
+    sh "conda create          -n " + env_name + " eman-deps-dev=${STAGE_NAME} -c cryoem -c defaults -c conda-forge --yes"
     sh "conda list            -n " + env_name
     sh "conda list --explicit -n " + env_name
 }
@@ -289,7 +289,7 @@ pipeline {
       }
     }
     
-    stage('19.0') {
+    stage('20.0') {
       steps {
         run_conda_command()
       }
