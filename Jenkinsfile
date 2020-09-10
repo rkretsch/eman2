@@ -289,7 +289,7 @@ pipeline {
       }
     }
     
-    stage('24.0') {
+    stage('24.1') {
       steps {
         run_conda_command()
       }
