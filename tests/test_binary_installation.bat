@@ -18,7 +18,5 @@ conda.exe list --explicit
 call tests\run_tests.bat
 if errorlevel 1 exit 1
 
-set "BASH_EXE=C:\Program Files\Git\bin\bash.exe"
-
-"%BASH_EXE%" -c "bash tests/run_prog_tests.sh"
+python tests/run_prog_tests.py
 if errorlevel 1 exit 1
