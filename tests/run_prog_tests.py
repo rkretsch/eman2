@@ -4,6 +4,7 @@
 
 from pathlib import Path
 import subprocess
+import sys
 
 MYDIR = Path(__file__).parent
 PROGS_DIR = MYDIR.parent / "programs"
@@ -27,3 +28,10 @@ for prog in progs:
     print(f"Running: {' '.join(proc.args)}")
     if proc.returncode:
         failed_progs.append(prog)
+
+print(f"\nTotal failed programs: {len(failed_progs)} / {len(progs)}")
+for prog in failed_progs:
+    print(prog)
+
+if failed_progs:
+    sys.exit(1)
