@@ -418,15 +418,12 @@ def e2getinstalldir() :
 	 but cmake is not run during binary installations."""
 	from pathlib import Path
 	
-	this_file_dirname = Path(__file__).parent
-	
-	rel_path = Path().parent.parent        # '../..'
 	if get_platform() != "Windows":
-		rel_path = rel_path.parent         # rel_path = '../../..'
+		rel_path = Path().parent
 	else:
-		rel_path = rel_path / 'Library'    # rel_path = '../../Library'
+		rel_path = Path('Library')
 	
-	return this_file_dirname / rel_path
+	return Path(__file__).parent.parent.parent / rel_path
 
 def get_temp_name():
 	"""Returns a suitable name for a temporary HDF file in the current directory. Does not create or delete the file."""
