@@ -416,14 +416,17 @@ def e2getinstalldir() :
 	"""Final path needs to be computed relative to a path within the installation.
 	 An alternative could be to get the installation directory from cmake,
 	 but cmake is not run during binary installations."""
+	from pathlib import Path
 	
-	this_file_dirname = os.path.dirname(__file__)
+	this_file_dirname = Path(__file__).parent
+	
+	rel_path = Path().parent.parent        # '../..'
 	if get_platform() != "Windows":
-		rel_path = '../../../'
+		rel_path = rel_path.parent         # rel_path = '../../..'
 	else:
-		rel_path = '../../Library/'
+		rel_path = rel_path / 'Library'    # rel_path = '../../Library'
 	
-	return os.path.abspath(os.path.join(this_file_dirname, rel_path))
+	return this_file_dirname / rel_path
 
 def get_temp_name():
 	"""Returns a suitable name for a temporary HDF file in the current directory. Does not create or delete the file."""
