@@ -14,4 +14,8 @@ with open(MYDIR / "programs_no_test.txt", "r") as fin:
     for line in fin:
         progs_exclude.add(line.split()[0])
 
+print("\nRemoving programs from test list...")
+for f in progs_exclude:
+    print(f"... {f}")
+
 progs -= progs_exclude
