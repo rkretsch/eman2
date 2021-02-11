@@ -8,10 +8,10 @@ def convertToNativePath(path) {
 }
 
 def getOSName() {
-        uname  = sh(returnStdout: true, script: 'python -c "import platform; print(platform.system())"').trim()
-        os_map = ['Linux':'linux', 'Darwin':'mac', 'Windows':'win']
+    uname  = sh(returnStdout: true, script: 'python -c "import platform; print(platform.system())"').trim()
+    os_map = ['Linux':'linux', 'Darwin':'mac', 'Windows':'win']
 
-        return os_map[uname]
+    return os_map[uname]
 }
 
 def getJobType() {
