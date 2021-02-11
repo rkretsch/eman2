@@ -247,7 +247,7 @@ pipeline {
   }
   
   environment {
-    AAAAAAA = sh(returnStdout: true, script: 'printenv').trim()
+    AAAAAAA = bat(returnStdout: true, script: 'dir').trim()
     AGENT_OS_NAME = getOSName()
     JOB_TYPE = getJobType()
     GIT_BRANCH_SHORT = sh(returnStdout: true, script: 'echo ${GIT_BRANCH##origin/}').trim()
