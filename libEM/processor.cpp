@@ -287,6 +287,7 @@ const string InverseKaiserI0Processor::NAME = "filter.kaiser_io_inverse";
 const string InverseKaiserSinhProcessor::NAME = "filter.kaisersinhinverse";
 const string NewRadialTableProcessor::NAME = "filter.radialtable";
 const string LowpassRandomPhaseProcessor::NAME = "filter.lowpass.randomphase";
+const string HighpassRandomPhaseProcessor::NAME = "filter.highpass.randomphase";
 const string NewLowpassButterworthProcessor::NAME = "filter.lowpass.butterworth";
 const string NewHighpassButterworthProcessor::NAME = "filter.highpass.butterworth";
 const string NewHomomorphicButterworthProcessor::NAME = "filter.homomorphic.butterworth";
@@ -568,6 +569,7 @@ template <> Factory < Processor >::Factory()
 	force_add<NewInverseGaussProcessor>();
 	force_add<GaussZFourierProcessor>();
 	force_add<LowpassRandomPhaseProcessor>();
+	force_add<HighpassRandomPhaseProcessor>();
 	force_add<NewLowpassButterworthProcessor>();
 	force_add<NewHighpassButterworthProcessor>();
 	force_add<NewHomomorphicButterworthProcessor>();
@@ -2085,6 +2087,74 @@ void LowpassRandomPhaseProcessor::process_inplace(EMData *image)
 				for (int x=0; x<nx/2; x++) {
 					if (Util::hypot3(x/float(nx),y/float(ny),z/float(nz))>=cutoff) {
 						size_t idx=image->get_complex_index_fast(x,y,z);		// location of the amplitude
+						data[idx+1]=Util::get_frand(0.0f,(float)(M_PI*2.0));
+					}
+				}
+			}
+		}
+		image->ap2ri();
+
+		if (flag) {
+			image->do_ift_inplace();
+			image->depad();
+		}
+	}
+}
+
+void HighpassRandomPhaseProcessor::create_radial_func(vector < float >&radial_mask) const { };
+
+void HighpassRandomPhaseProcessor::process_inplace(EMData *image)
+{
+	float cutoff=0;
+	preprocess(image);
+	if( params.has_key("cutoff_abs") ) {
+		cutoff=(float)params["cutoff_abs"];
+	}
+	else {
+		printf("A cutoff_* parameter is required by filter.highpass.randomphase\n");
+		return;
+	}
+
+
+	if (image->get_zsize()==1) {
+		int flag=0;
+		if (!image->is_complex()) { image->do_fft_inplace(); flag=1; }
+		image->ri2ap();
+		int nx=image->get_xsize();
+		int ny=image->get_ysize();
+
+		int z=0;
+		float *data=image->get_data();
+		for (int y=-ny/2; y<ny/2; y++) {
+			for (int x=0; x<nx/2+1; x++) {
+				if (hypot(x/float(nx),y/float(ny))<=cutoff) {
+					size_t idx=image->get_complex_index_fast(x,y,z);        // location of the amplitude
+					data[idx+1]=Util::get_frand(0.0f,(float)(M_PI*2.0));
+				}
+			}
+		}
+
+		image->ap2ri();
+
+		if (flag) {
+			image->do_ift_inplace();
+			image->depad();
+		}
+	}
+	else {      // 3D
+		int flag=0;
+		if (!image->is_complex()) { image->do_fft_inplace(); flag=1; }
+		image->ri2ap();
+		int nx=image->get_xsize();
+		int ny=image->get_ysize();
+		int nz=image->get_zsize();
+
+		float *data=image->get_data();
+		for (int z=-nz/2; z<nz/2; z++) {
+			for (int y=-ny/2; y<ny/2; y++) {
+				for (int x=0; x<nx/2; x++) {
+					if (Util::hypot3(x/float(nx),y/float(ny),z/float(nz))<=cutoff) {
+						size_t idx=image->get_complex_index_fast(x,y,z);        // location of the amplitude
 						data[idx+1]=Util::get_frand(0.0f,(float)(M_PI*2.0));
 					}
 				}
@@ -11842,12 +11912,12 @@ void ScaleTransformProcessor::process_inplace(EMData* image) {
 }
 
 struct WSsortlist {
-    float pix;
-    short x,y,z;
-    
-    friend bool operator<(const WSsortlist& l, const WSsortlist& r) {
-        return l.pix < r.pix;
-    }
+	float pix;
+	short x,y,z;
+	
+	friend bool operator<(const WSsortlist& l, const WSsortlist& r) {
+		return l.pix < r.pix;
+	}
 };
 
 // inefficient since a copy was probably already made, but best we can do
@@ -13490,7 +13560,7 @@ EMData* BispecSliceProcessor::process(const EMData * const image) {
 		delete cimage;
 		ret2->set_attr("is_bispec_fp",(int)fp);
 		return ret2;
-        }
+		}
 	// In this mode we are making a translational invariant with information we can use for rotational alignment
 	// It is not actually a bispectrum, but is based on a 2-point method instead
 	else if (params.has_key("rfp")) {

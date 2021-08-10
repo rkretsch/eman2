@@ -1934,6 +1934,24 @@ The basic design of EMAN Processors: <br>\
                 static const string NAME;
         };
 
+	   /**Highpass Phase Randomization processor applied in Fourier space.
+         */
+        class HighpassRandomPhaseProcessor:public FourierProcessor
+        {
+          public:
+                string get_name() const
+                { return NAME; }
+                static Processor *NEW() { return new HighpassRandomPhaseProcessor(); }
+                string get_desc() const
+                {
+                        return "Below the cutoff frequency, phases will be completely randomized, but amplitudes will be unchanged. Expiremental use.";
+                }
+				void process_inplace(EMData * image);
+		  		void create_radial_func(vector < float >&radial_mask) const;
+
+                static const string NAME;
+        };
+
 
 	/**processor radial function: if lowpass > 0, f(x) = exp(-x*x/(lowpass*lowpass)); else f(x) = exp(x*x/(lowpass*lowpass))
 	 */
