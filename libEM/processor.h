@@ -347,6 +347,8 @@ The basic design of EMAN Processors: <br>\
 			d.put("cutoff_freq", EMObject::FLOAT, "1/Resolution in 1/A (0 - 1 / 2*apix). eg - a 20 A filter is cutoff_freq=0.05");
 			d.put("apix", EMObject::FLOAT, " Override A/pix in the image header (changes x,y and z)");
 			d.put("return_radial", EMObject::BOOL, "Return the radial filter function as an attribute (filter_curve)");
+			d.put("high_cutoff_frequency", EMObject::FLOAT, "");
+			d.put("low_cutoff_frequency", EMObject::FLOAT, "");
 			return d;
 		}
 
@@ -375,6 +377,16 @@ The basic design of EMAN Processors: <br>\
                                 params["cutoff_abs"] = val;
                                 params["sigma"] = val;
                         }
+
+                        if( params.has_key("low_cutoff_frequency") ) {
+				float val =  (float)params["low_cutoff_frequency"] * (float)dict["apix_x"];
+				params["cutoff_lower_abs"] = val;
+			}
+			if( params.has_key("high_cutoff_frequency") ) {
+				float val =  (float)params["high_cutoff_frequency"] * (float)dict["apix_x"];
+				params["cutoff_upper_abs"] = val;
+			}
+
 
 			}
 		  virtual void create_radial_func(vector < float >&radial_mask) const = 0;
@@ -1952,6 +1964,23 @@ The basic design of EMAN Processors: <br>\
                 static const string NAME;
         };
 
+	   /**Lowpass Phase Randomization processor applied in Fourier space.
+         */
+        class BandpassRandomPhaseProcessor:public FourierProcessor
+        {
+          public:
+                string get_name() const
+                { return NAME; }
+                static Processor *NEW() { return new BandpassRandomPhaseProcessor(); }
+                string get_desc() const
+                {
+                        return "Above the cutoff frequency, phases will be completely randomized, but amplitudes will be unchanged. Used for testing for noise bias. If you can reconstruct information that isn't there, then you have noise bias problems.";
+                }
+				void process_inplace(EMData * image);
+		  		void create_radial_func(vector < float >&radial_mask) const;
+
+                static const string NAME;
+        };
 
 	/**processor radial function: if lowpass > 0, f(x) = exp(-x*x/(lowpass*lowpass)); else f(x) = exp(x*x/(lowpass*lowpass))
 	 */
